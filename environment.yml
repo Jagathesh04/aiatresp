@@ -1,0 +1,15 @@
+name: aiatresp
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python>=3.10
+  - numpy>=1.26,<2
+  - astropy>=6.0
+  - scipy>=1.10
+  - tqdm>=4.66
+  - pytest
+  - pip
+  - pip:
+    - aiapy>=0.10,<1
+    - -e .
