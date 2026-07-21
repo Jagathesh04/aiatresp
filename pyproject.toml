@@ -1,19 +1,60 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "aiatresp"
 version = "0.1.0"
 description = "Reproducible, Python-native SDO/AIA temperature-response generation"
+readme = "README.md"
+license = { file = "LICENSE" }
 requires-python = ">=3.10"
-dependencies = [
-  "numpy>=1.26,<2",
-  "astropy>=6.0",
-  "aiapy>=0.10,<1",
-  "scipy>=1.10",
-  "tqdm>=4.66",
+
+authors = [
+    { name = "Jagatheshwaran R" }
 ]
+
+keywords = [
+    "solar physics",
+    "solar",
+    "SDO",
+    "AIA",
+    "temperature response",
+    "DEM",
+    "SunPy",
+    "AIAPY",
+    "astrophysics",
+    "astronomy",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = [
+    "numpy>=1.26,<2",
+    "astropy>=6.0",
+    "aiapy>=0.10,<1",
+    "scipy>=1.10",
+    "tqdm>=4.66",
+]
+
+[project.urls]
+Homepage = "https://github.com/Jagathesh04/aiatresp"
+Repository = "https://github.com/Jagathesh04/aiatresp"
+Issues = "https://github.com/Jagathesh04/aiatresp/issues"
 
 [project.scripts]
 aia-response = "aiatresp.cli:main"
