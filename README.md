@@ -55,4 +55,3 @@ aia-response --fits-dir /path/to/fits/dir --text-output my_response.dat --output
 - **Multi-Part Parallel Downloading:** Concurrent chunk downloader for maximum bandwidth efficiency.
 - **Memory Optimized:** Emissivity data is memory-shared across threads during parallel channel integrations.
 - **Compatibility Helper:** Built-in `read_aia_response` helper exposing `.channels`, `.logt`, `.tr`, and `.units` attributes for downstream pipelines.
-- **Open Source:** Licensed under the 100% free permissive MIT License.
