@@ -89,23 +89,41 @@ class AIAResponseGenerator:
         native_output = np.empty((emiss_logt.size, len(self.request.channels)), dtype=np.float64)
         
         def _fetch_correction_table():
-            for module_path in (
-                "aiapy.calibrate.utils",
-                "aiapy.calibrate.util",
-                "aiapy.calibrate",
-                "aiapy.calibrate.degradation",
-            ):
+            def _try_get():
+                for module_path in (
+                    "aiapy.calibrate.utils",
+                    "aiapy.calibrate.util",
+                    "aiapy.calibrate",
+                    "aiapy.calibrate.degradation",
+                ):
+                    try:
+                        mod = __import__(module_path, fromlist=["get_correction_table"])
+                        func = getattr(mod, "get_correction_table", None)
+                        if func is not None:
+                            try:
+                                return func(source="SSW")
+                            except TypeError:
+                                return func()
+                    except (ImportError, AttributeError, ModuleNotFoundError):
+                        continue
+                return None
+
+            try:
+                tbl = _try_get()
+                if tbl is not None:
+                    return tbl
+            except Exception:
                 try:
-                    mod = __import__(module_path, fromlist=["get_correction_table"])
-                    func = getattr(mod, "get_correction_table", None)
-                    if func is not None:
-                        try:
-                            return func(source="SSW")
-                        except TypeError:
-                            return func()
-                except (ImportError, AttributeError, ModuleNotFoundError):
-                    continue
-            raise RuntimeError("Could not locate get_correction_table in aiapy.calibrate")
+                    from astropy.utils.data import clear_download_cache
+                    clear_download_cache()
+                except Exception:
+                    pass
+                tbl = _try_get()
+                if tbl is not None:
+                    return tbl
+
+            raise RuntimeError("Could not locate or fetch get_correction_table in aiapy.calibrate")
+
 
 
         def process_channel(idx: int, channel_angstrom: int):
