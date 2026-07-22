@@ -126,39 +126,53 @@ class AIAResponseGenerator:
 
 
 
+        def _reset_astropy_cache():
+            try:
+                from astropy.utils.data import clear_download_cache, _get_download_cache_loc
+                clear_download_cache()
+                cache_loc = Path(_get_download_cache_loc())
+                if cache_loc.parent.exists():
+                    shutil.rmtree(cache_loc.parent, ignore_errors=True)
+            except Exception:
+                pass
+
         def process_channel(idx: int, channel_angstrom: int):
-            c = Channel(channel_angstrom * u.angstrom, instrument_file=str(self.instrument_file))
-            if self.request.correction_table is not None:
-                correction_table = Table.read(self.request.correction_table)
-            else:
-                correction_table = _fetch_correction_table()
-            
-            obstime_obj = None
-            if self.request.observation_time:
-                obs_t_str = str(self.request.observation_time).replace("+00:00", "")
-                if obs_t_str.endswith("Z"):
-                    obs_t_str = obs_t_str[:-1]
-                obstime_obj = Time(obs_t_str)
+            def _run():
+                c = Channel(channel_angstrom * u.angstrom, instrument_file=str(self.instrument_file))
+                if self.request.correction_table is not None:
+                    correction_table = Table.read(self.request.correction_table)
+                else:
+                    correction_table = _fetch_correction_table()
+                
+                obstime_obj = None
+                if self.request.observation_time:
+                    obs_t_str = str(self.request.observation_time).replace("+00:00", "")
+                    if obs_t_str.endswith("Z"):
+                        obs_t_str = obs_t_str[:-1]
+                    obstime_obj = Time(obs_t_str)
+
+                response = c.wavelength_response(
+                    obstime=obstime_obj,
+                    include_eve_correction=self.request.include_eve_correction,
+                    include_crosstalk=self.request.include_crosstalk,
+                    correction_table=correction_table,
+                )
+
+                native_wavelength = c.wavelength.to_value(u.angstrom)
+                values = np.asarray(response.value, dtype=np.float64)
+                
+                iresponse = np.interp(emiss_wave, native_wavelength, values, left=0.0, right=0.0)
+                iresponse = np.clip(iresponse, 0, None)
+                
+                channel_resp = np.sum(iresponse[np.newaxis, :] * emiss_spectrum, axis=1)
+                return idx, channel_resp * self.request.pixel_solid_angle_sr * wavestep
 
             try:
-                response = c.wavelength_response(
-                    obstime=obstime_obj,
-                    include_eve_correction=self.request.include_eve_correction,
-                    include_crosstalk=self.request.include_crosstalk,
-                    correction_table=correction_table,
-                )
+                return _run()
             except Exception:
-                try:
-                    from astropy.utils.data import clear_download_cache
-                    clear_download_cache()
-                except Exception:
-                    pass
-                response = c.wavelength_response(
-                    obstime=obstime_obj,
-                    include_eve_correction=self.request.include_eve_correction,
-                    include_crosstalk=self.request.include_crosstalk,
-                    correction_table=correction_table,
-                )
+                _reset_astropy_cache()
+                return _run()
+
 
 
 
