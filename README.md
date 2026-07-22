@@ -6,20 +6,26 @@ A fast, highly-optimized, Python-native package for computing Solar Dynamics Obs
 
 ## Installation
 
-Using Conda (Recommended):
+Clone the repository and enter the project directory:
 ```bash
-conda env create -f environment.yml
-conda activate aiatresp
+git clone https://github.com/jagathesh/aiatresp.git && cd aiatresp
 ```
 
-Or using pip:
+Install `aiatresp` directly into your existing active environment (Conda or `.venv`):
+```bash
+pip install .
+```
+
+For editable/development installation:
 ```bash
 pip install -e .
 ```
 
+> **Note**: `aiatresp` uses standard scientific dependencies (`numpy`, `astropy`, `scipy`, `aiapy`, `tqdm`). Installing via `pip` cleanly integrates `aiatresp` into your existing environment without altering or resetting your existing package setup.
+
 ## How to Use
 
-The package exposes a very simple single-import API. You only need to provide the observation time.
+The package exposes a simple single-import API. You only need to provide the observation time.
 
 ### 1. By Explicit Date
 You can calculate the time-dependent degradation response by passing an explicit ISO date:
@@ -28,6 +34,7 @@ from aiatresp import aia_response
 
 response = aia_response(obstime="2017-01-01T00:00:00")
 print(response.channels)
+print(response.response.shape)  # (6, 101) -> (channels, temperature)
 ```
 
 ### 2. By Auto-Parsing FITS Directories
@@ -43,10 +50,10 @@ You can also generate `.npz` (lossless Python data) or `.dat` (formatted text ou
 
 ```bash
 # Output text file by parsing a FITS file for the date
-aia-response --fits-file /path/to/image.fits --text-output my_response.dat --output my_response.npz
+aia-response --fits-file /path/to/image.fits --text-output aiat_response.dat --output aiat_response.npz
 
 # Output text file by parsing a whole directory
-aia-response --fits-dir /path/to/fits/dir --text-output my_response.dat --output my_response.npz
+aia-response --fits-dir /path/to/fits/dir --text-output aiat_response.dat --output aiat_response.npz
 ```
 
 ## Features
@@ -55,3 +62,4 @@ aia-response --fits-dir /path/to/fits/dir --text-output my_response.dat --output
 - **Multi-Part Parallel Downloading:** Concurrent chunk downloader for maximum bandwidth efficiency.
 - **Memory Optimized:** Emissivity data is memory-shared across threads during parallel channel integrations.
 - **Compatibility Helper:** Built-in `read_aia_response` helper exposing `.channels`, `.logt`, `.tr`, and `.units` attributes for downstream pipelines.
+- **Open Source:** Licensed under the 100% free permissive MIT License.
