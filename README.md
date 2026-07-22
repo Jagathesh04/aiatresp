@@ -1,6 +1,6 @@
 # aiatresp
 
-`aiatresp` is a pure Python replacement for SolarSoft's `aia_get_response` routine.
+`aiatresp` is a pure Python replacement for SolarSoft's `aia_get_response()` routine.
 
 It computes the SDO/AIA temperature response functions for all coronal channels without requiring IDL or SolarSoft while remaining numerically consistent with the official AIA calibration files.
 
