@@ -45,6 +45,7 @@ venv.bak/
 .cache/
 .pytest_cache/
 graphify-out/
+logs*/
 
 # Local engineering logs
 engineering_log.md

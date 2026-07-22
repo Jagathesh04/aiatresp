@@ -88,13 +88,24 @@ class AIAResponseGenerator:
         
         native_output = np.empty((emiss_logt.size, len(self.request.channels)), dtype=np.float64)
         
+        def _fetch_correction_table():
+            try:
+                from aiapy.calibrate.utils import get_correction_table
+                return get_correction_table()
+            except (ImportError, ModuleNotFoundError):
+                try:
+                    from aiapy.calibrate import get_correction_table
+                    return get_correction_table()
+                except (ImportError, ModuleNotFoundError):
+                    from aiapy.calibrate.degradation import get_correction_table
+                    return get_correction_table()
+
         def process_channel(idx: int, channel_angstrom: int):
             c = Channel(channel_angstrom * u.angstrom, instrument_file=str(self.instrument_file))
             if self.request.correction_table is not None:
                 correction_table = Table.read(self.request.correction_table)
             else:
-                from aiapy.calibrate.utils import get_correction_table
-                correction_table = get_correction_table(source="SSW")
+                correction_table = _fetch_correction_table()
             
             obstime_obj = None
             if self.request.observation_time:
@@ -109,6 +120,7 @@ class AIAResponseGenerator:
                 include_crosstalk=self.request.include_crosstalk,
                 correction_table=correction_table,
             )
+
 
             native_wavelength = c.wavelength.to_value(u.angstrom)
             values = np.asarray(response.value, dtype=np.float64)
