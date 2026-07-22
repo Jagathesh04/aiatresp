@@ -42,5 +42,6 @@ def save_text(response: AIAResponse, path: str | Path) -> None:
         handle.write(f"# units={response.units}\n")
         handle.write("# provenance=" + json.dumps(response.provenance, sort_keys=True) + "\n")
         handle.write("# columns=log10_temperature " + " ".join(response.channels) + "\n")
-        np.savetxt(handle, np.column_stack((response.logt, response.response)),
+        np.savetxt(handle, np.column_stack((response.logt, response.response.T)),
                    fmt=["%.17g"] + ["%.17e"] * len(response.channels))
+

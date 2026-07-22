@@ -93,12 +93,20 @@ class AIAResponseGenerator:
             correction_table = (Table.read(self.request.correction_table)
                                 if self.request.correction_table is not None else None)
             
+            obstime_obj = None
+            if self.request.observation_time:
+                obs_t_str = str(self.request.observation_time).replace("+00:00", "")
+                if obs_t_str.endswith("Z"):
+                    obs_t_str = obs_t_str[:-1]
+                obstime_obj = Time(obs_t_str)
+
             response = c.wavelength_response(
-                obstime=Time(self.request.observation_time) if self.request.observation_time else None,
+                obstime=obstime_obj,
                 include_eve_correction=self.request.include_eve_correction,
                 include_crosstalk=self.request.include_crosstalk,
                 correction_table=correction_table,
             )
+
             native_wavelength = c.wavelength.to_value(u.angstrom)
             values = np.asarray(response.value, dtype=np.float64)
             
@@ -118,10 +126,11 @@ class AIAResponseGenerator:
 
         user_temperature = self.request.temperatures()
         user_logt = np.log10(user_temperature)
-        output = np.empty((user_logt.size, len(self.request.channels)), dtype=np.float64)
+        output = np.empty((len(self.request.channels), user_logt.size), dtype=np.float64)
         
         for index in range(len(self.request.channels)):
-            output[:, index] = np.interp(user_logt, emiss_logt, native_output[:, index], left=0.0, right=0.0)
+            output[index, :] = np.interp(user_logt, emiss_logt, native_output[:, index], left=0.0, right=0.0)
+
             
         provenance: dict[str, Any] = self.request.provenance()
         provenance.update({

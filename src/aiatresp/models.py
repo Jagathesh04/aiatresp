@@ -105,7 +105,8 @@ class AIAResponse:
     provenance: dict[str, Any]
 
     def validate(self) -> None:
-        if self.response.shape != (self.logt.size, len(self.channels)):
-            raise ValueError("Response dimensions do not match the temperature grid and channels")
+        if self.response.shape != (len(self.channels), self.logt.size):
+            raise ValueError("Response dimensions do not match the channels and temperature grid (channels, temperature)")
         if not np.isfinite(self.response).all():
             raise ValueError("Response contains non-finite values")
+
