@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -12,56 +13,89 @@ from typing import Any, Dict, List, Tuple
 from .config import get_cache_dir
 
 SSW_RESPONSE_URL = "https://hesperia.gsfc.nasa.gov/ssw/sdo/aia/response/"
+SOHO_RESPONSE_URL = "https://soho.nascom.nasa.gov/solarsoft/sdo/aia/response/"
 CATALOG_FILENAME = "catalog_cache.json"
+
+DEFAULT_BUILTIN_CATALOG: List[Dict[str, str]] = [
+    {"version": "preflight", "timestamp": "2010-05-01T00:00:00+00:00"},
+    {"version": "2", "timestamp": "2011-11-29T00:00:00+00:00"},
+    {"version": "3", "timestamp": "2012-09-26T20:12:21+00:00"},
+    {"version": "4", "timestamp": "2013-01-09T20:48:35+00:00"},
+    {"version": "6", "timestamp": "2014-05-09T02:58:12+00:00"},
+    {"version": "7", "timestamp": "2017-11-29T19:56:26+00:00"},
+    {"version": "8", "timestamp": "2017-11-30T05:11:27+00:00"},
+    {"version": "9", "timestamp": "2020-07-06T21:54:52+00:00"},
+    {"version": "10", "timestamp": "2020-11-19T19:00:00+00:00"},
+]
+
 
 
 def fetch_remote_catalog() -> List[Dict[str, str]]:
-    """Dynamically fetch and parse the SSW AIA calibration release catalog from NASA GSFC."""
-    req = urllib.request.Request(SSW_RESPONSE_URL)
-    with urllib.request.urlopen(req, timeout=10) as resp:
-        html = resp.read().decode("utf-8", errors="ignore")
+    """Dynamically fetch and parse the SSW AIA calibration release catalog from primary/mirror NASA indices."""
+    urls = [SSW_RESPONSE_URL, SOHO_RESPONSE_URL]
+    last_err = None
 
-    pattern = r'aia_([A-Za-z0-9]+)_(\d{8})_(\d{6})_response_table\.txt'
-    matches = re.findall(pattern, html)
+    for url in urls:
+        for attempt in range(3):
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "aiatresp/0.1.0"})
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    html = resp.read().decode("utf-8", errors="ignore")
 
-    if not matches:
-        raise ValueError(f"No response tables found in SSW response index at {SSW_RESPONSE_URL}")
+                pattern = r'aia_([A-Za-z0-9]+)_(\d{8})_(\d{6})_response_table\.txt'
+                matches = re.findall(pattern, html)
 
-    entries = []
-    seen = set()
+                if not matches:
+                    continue
 
-    for ver_raw, dstr, tstr in matches:
-        dt = datetime.strptime(f"{dstr}{tstr}", "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
-        ver_clean = ver_raw.lstrip("Vv")
-        key = (ver_clean, dt.isoformat())
-        if key not in seen:
-            seen.add(key)
-            entries.append({"version": ver_clean, "timestamp": dt.isoformat()})
+                entries = []
+                seen = set()
 
-    entries.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]))
-    return entries
+                for ver_raw, dstr, tstr in matches:
+                    dt = datetime.strptime(f"{dstr}{tstr}", "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+                    ver_clean = ver_raw.lstrip("Vv")
+                    key = (ver_clean, dt.isoformat())
+                    if key not in seen:
+                        seen.add(key)
+                        entries.append({"version": ver_clean, "timestamp": dt.isoformat()})
+
+                entries.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]))
+                return entries
+            except Exception as e:
+                last_err = e
+                time.sleep(1 + attempt)
+
+    raise RuntimeError(f"Failed to fetch remote catalog from all mirrors: {last_err}")
 
 
 def get_ssw_catalog(refresh: bool = False) -> List[Dict[str, str]]:
-    """Get the SSW calibration catalog dynamically from cache or remote network index."""
+    """Get the SSW calibration catalog dynamically from cache, remote network index, or built-in fallback."""
     cache_path = get_cache_dir() / CATALOG_FILENAME
 
     if not refresh and cache_path.exists():
-        with cache_path.open("r", encoding="utf-8") as f:
-            data = json.load(f)
-            if isinstance(data, list) and len(data) > 0:
-                return data
+        try:
+            with cache_path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list) and len(data) > 0:
+                    return data
+        except Exception:
+            pass
 
     try:
         catalog = fetch_remote_catalog()
         with cache_path.open("w", encoding="utf-8") as f:
             json.dump(catalog, f, indent=2)
         return catalog
-    except Exception as err:
+    except Exception:
         if cache_path.exists():
-            with cache_path.open("r", encoding="utf-8") as f:
-                return json.load(f)
-        raise RuntimeError(f"Failed to fetch or load SSW AIA calibration catalog from {SSW_RESPONSE_URL}: {err}") from err
+            try:
+                with cache_path.open("r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    if isinstance(data, list) and len(data) > 0:
+                        return data
+            except Exception:
+                pass
+        return DEFAULT_BUILTIN_CATALOG
 
 
 def resolve_calibration_version_from_date(obstime: str | datetime) -> int | str:
