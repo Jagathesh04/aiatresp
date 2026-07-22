@@ -7,7 +7,9 @@ name = "aiatresp"
 version = "0.1.0"
 description = "Reproducible, Python-native SDO/AIA temperature-response generation"
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
+
 requires-python = ">=3.10"
 
 authors = [
@@ -30,8 +32,8 @@ keywords = [
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+
 
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
