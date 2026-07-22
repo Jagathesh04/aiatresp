@@ -46,7 +46,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy>=1.26,<2",
+    "numpy>=1.26",
+
     "astropy>=6.0",
     "aiapy>=0.10,<1",
     "scipy>=1.10",

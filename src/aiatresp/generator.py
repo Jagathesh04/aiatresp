@@ -89,16 +89,24 @@ class AIAResponseGenerator:
         native_output = np.empty((emiss_logt.size, len(self.request.channels)), dtype=np.float64)
         
         def _fetch_correction_table():
-            try:
-                from aiapy.calibrate.utils import get_correction_table
-                return get_correction_table()
-            except (ImportError, ModuleNotFoundError):
+            for module_path in (
+                "aiapy.calibrate.utils",
+                "aiapy.calibrate.util",
+                "aiapy.calibrate",
+                "aiapy.calibrate.degradation",
+            ):
                 try:
-                    from aiapy.calibrate import get_correction_table
-                    return get_correction_table()
-                except (ImportError, ModuleNotFoundError):
-                    from aiapy.calibrate.degradation import get_correction_table
-                    return get_correction_table()
+                    mod = __import__(module_path, fromlist=["get_correction_table"])
+                    func = getattr(mod, "get_correction_table", None)
+                    if func is not None:
+                        try:
+                            return func(source="SSW")
+                        except TypeError:
+                            return func()
+                except (ImportError, AttributeError, ModuleNotFoundError):
+                    continue
+            raise RuntimeError("Could not locate get_correction_table in aiapy.calibrate")
+
 
         def process_channel(idx: int, channel_angstrom: int):
             c = Channel(channel_angstrom * u.angstrom, instrument_file=str(self.instrument_file))
