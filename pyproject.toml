@@ -49,11 +49,14 @@ dependencies = [
     "aiapy>=0.10,<1",
     "scipy>=1.10",
     "tqdm>=4.66",
+    "platformdirs>=3.0.0",
 ]
 
 [project.urls]
 Homepage = "https://github.com/Jagathesh04/aiatresp"
 Repository = "https://github.com/Jagathesh04/aiatresp"
+Documentation = "https://github.com/Jagathesh04/aiatresp#readme"
+Changelog = "https://github.com/Jagathesh04/aiatresp/blob/main/CHANGELOG.md"
 Issues = "https://github.com/Jagathesh04/aiatresp/issues"
 
 [project.scripts]

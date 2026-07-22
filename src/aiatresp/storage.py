@@ -35,6 +35,10 @@ def load_npz(path: str | Path) -> AIAResponse:
     return response
 
 
+# Alias for legacy compatibility
+read_aia_response = load_npz
+
+
 def save_text(response: AIAResponse, path: str | Path) -> None:
     response.validate()
     with Path(path).open("w", encoding="utf-8", newline="\n") as handle:

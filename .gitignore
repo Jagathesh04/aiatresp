@@ -46,10 +46,10 @@ venv.bak/
 .pytest_cache/
 graphify-out/
 
-# Local engineering logs & unpushed test directory
-tests/
+# Local engineering logs
 engineering_log.md
 ENGINEERING_LOG.md
+
 
 # Output data formats & logs
 *.npz

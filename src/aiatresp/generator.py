@@ -90,8 +90,11 @@ class AIAResponseGenerator:
         
         def process_channel(idx: int, channel_angstrom: int):
             c = Channel(channel_angstrom * u.angstrom, instrument_file=str(self.instrument_file))
-            correction_table = (Table.read(self.request.correction_table)
-                                if self.request.correction_table is not None else None)
+            if self.request.correction_table is not None:
+                correction_table = Table.read(self.request.correction_table)
+            else:
+                from aiapy.calibrate.utils import get_correction_table
+                correction_table = get_correction_table(source="SSW")
             
             obstime_obj = None
             if self.request.observation_time:

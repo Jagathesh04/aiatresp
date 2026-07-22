@@ -1,17 +1,45 @@
-# aiatresp (AIA Temperature Response)
+# aiatresp
 
-A fast, highly-optimized, Python-native package for computing Solar Dynamics Observatory (SDO) AIA temperature response functions. 
+`aiatresp` is a pure Python replacement for SolarSoft's `aia_get_response` routine.
 
-`aiatresp` is a modern Python-native package built to continue and extend the AIA temperature response calculations discontinued in recent versions of `aiapy`/`sunpy`. It provides a pure Python pipeline for computing SDO/AIA temperature response functions across all coronal channels, with numerical calculations and wavelength integration methods fully verified and validated for scientific accuracy.
+It computes the SDO/AIA temperature response functions for all coronal channels without requiring IDL or SolarSoft while remaining numerically consistent with the official AIA calibration files.
+
+## Workflow Translation
+
+```text
+IDL (SolarSoft)
+-------------------------------------------------------------
+aia_get_response, '2014-03-29', channels, logt, tr, /chianti
+
+                     ↓
+
+Python (aiatresp)
+-------------------------------------------------------------
+from aiatresp import aia_response
+
+response = aia_response(obstime="2014-03-29")
+channels = response.channels
+logt = response.logt
+tr = response.response  # Array shape: (6, 101) -> (channels, temperature)
+```
+
+## Features
+
+- **Pure Python Replacement for `aia_get_response`**: Computes time-dependent AIA temperature responses without any IDL or SolarSoft installation.
+- **Dynamic SSW Catalog Tracking**: Automatically fetches live SolarSoft calibration indices (`https://hesperia.gsfc.nasa.gov/ssw/sdo/aia/response/`) to auto-discover active calibration versions (V1–V10, preflight, and future releases like V11) without hardcoded lookup tables.
+- **Time-Dependent Degradation & Crosstalk**: Full support for time-dependent EVE degradation corrections and channel crosstalk.
+- **On-Demand Storage Discipline**: Downloads only the specific single calibration version files needed into cross-platform cache locations (`platformdirs`).
+- **Parallel Downloader & Calculator**: Multi-part parallel chunk downloader for maximum speed and vectorized NumPy integration.
+- **`scipy.io.readsav` Drop-in Compatibility**: Includes `read_aia_response` helper exposing `.channels`, `.logt`, `.tr`, and `.units`.
 
 ## Installation
 
 Clone the repository and enter the project directory:
 ```bash
-git clone https://github.com/jagathesh/aiatresp.git && cd aiatresp
+git clone https://github.com/Jagathesh04/aiatresp.git && cd aiatresp
 ```
 
-Install `aiatresp` directly into your existing active environment (Conda or `.venv`):
+Install `aiatresp` directly into your active environment (Conda or `.venv`):
 ```bash
 pip install .
 ```
@@ -21,44 +49,52 @@ For editable/development installation:
 pip install -e .
 ```
 
-> **Note**: `aiatresp` uses standard scientific dependencies (`numpy`, `astropy`, `scipy`, `aiapy`, `tqdm`). Installing via `pip` cleanly integrates `aiatresp` into your existing environment without altering or resetting your existing package setup.
+## Usage
 
-## How to Use
-
-The package exposes a simple single-import API. You only need to provide the observation time.
-
-### 1. By Explicit Date
-You can calculate the time-dependent degradation response by passing an explicit ISO date:
+### 1. By Observation Date
+You can calculate temperature response functions by passing an ISO date string:
 ```python
 from aiatresp import aia_response
 
 response = aia_response(obstime="2017-01-01T00:00:00")
-print(response.channels)
-print(response.response.shape)  # (6, 101) -> (channels, temperature)
+print("Channels:", response.channels)
+print("Response shape:", response.response.shape)  # (6, 101) -> (channels, temperature)
 ```
 
 ### 2. By Auto-Parsing FITS Directories
-If you have a directory of downloaded AIA FITS files, the package can automatically parse the best co-temporal `DATE-OBS` for you! Just pass `"auto"` for the time and point it to your directory:
+Pass `obstime="auto"` and supply the directory containing AIA FITS files:
 ```python
 from aiatresp import aia_response
 
 response = aia_response(obstime="auto", fits_dir="/path/to/my/fits/directory")
 ```
 
-### Using the CLI
-You can also generate `.npz` (lossless Python data) or `.dat` (formatted text output) directly from the command line:
+
+### 3. Command-Line Interface (CLI)
 
 ```bash
-# Output text file by parsing a FITS file for the date
-aia-response --fits-file /path/to/image.fits --text-output aiat_response.dat --output aiat_response.npz
+# Output text and .npz response files from observation time
+aia-response --observation-time "2019-01-01T00:00:00" --output resp.npz --text-output resp.dat
 
-# Output text file by parsing a whole directory
-aia-response --fits-dir /path/to/fits/dir --text-output aiat_response.dat --output aiat_response.npz
+# Display environment & cache diagnostics
+aia-response info
+
+# Clear cached calibration files
+aia-response --clear-cache
 ```
 
-## Features
-- **Dynamic Response Catalog:** Automatically fetches live calibration release boundaries to select the exact calibration version (V2, V3, V4, V6, V8, V9, V10, preflight) matching your observation timestamp.
-- **On-Demand Storage Optimization:** Only downloads the specific files required for the requested observation date into `~/.aia_response_native/data`. No idle datasets or storage bloat.
-- **Multi-Part Parallel Downloading:** Concurrent chunk downloader for maximum bandwidth efficiency.
-- **Memory Optimized:** Emissivity data is memory-shared across threads during parallel channel integrations.
-- **Compatibility Helper:** Built-in `read_aia_response` helper exposing `.channels`, `.logt`, `.tr`, and `.units` attributes for downstream pipelines.
+## Verification & Testing
+
+Run the automated test suite with `pytest`:
+```bash
+pytest -v
+```
+
+Run the scientific verification script against SolarSoft reference standards:
+```bash
+python examples/compare_with_ssw.py
+```
+
+## License
+
+Distributed under the terms of the [MIT License](LICENSE).

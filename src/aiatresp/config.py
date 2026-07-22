@@ -3,13 +3,16 @@ import shutil
 from pathlib import Path
 
 
+import platformdirs
+
+
 def get_cache_dir() -> Path:
     """Get the default cache directory for downloaded response files."""
     env_dir = os.environ.get("AIA_RESPONSE_CACHE_DIR")
     if env_dir:
         cache_dir = Path(env_dir)
     else:
-        cache_dir = Path.home() / ".aia_response_native" / "data"
+        cache_dir = Path(platformdirs.user_cache_dir("aiatresp")) / "data"
     
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir

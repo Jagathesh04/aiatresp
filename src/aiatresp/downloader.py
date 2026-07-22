@@ -32,6 +32,25 @@ def download_chunk(url: str, start: int, end: int, part_num: int, temp_dir: Path
 def download_file(url: str, dest_path: Path, max_parts: int = 16) -> None:
     dest_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Try primary URL, then secondary mirror URL fallback if available
+    urls_to_try = [url]
+    if "hesperia.gsfc.nasa.gov" in url:
+        urls_to_try.append(url.replace("hesperia.gsfc.nasa.gov", "soho.nascom.nasa.gov"))
+    elif "soho.nascom.nasa.gov" in url:
+        urls_to_try.append(url.replace("soho.nascom.nasa.gov", "hesperia.gsfc.nasa.gov"))
+
+    last_error = None
+    for target_url in urls_to_try:
+        try:
+            return _download_from_url(target_url, dest_path, max_parts)
+        except Exception as e:
+            last_error = e
+            print(f"Warning: Download from {target_url} failed ({e}). Trying fallback mirror...")
+    
+    raise RuntimeError(f"Failed to download {dest_path.name} from all mirrors: {last_error}")
+
+
+def _download_from_url(url: str, dest_path: Path, max_parts: int = 16) -> None:
     req = urllib.request.Request(url, method='HEAD')
     total_size = None
     try:
