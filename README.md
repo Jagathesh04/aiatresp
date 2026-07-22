@@ -83,6 +83,10 @@ aia-response info
 aia-response --clear-cache
 ```
 
+## Scientific Validation
+
+Full side-by-side comparison plots and numerical validation against SolarSoft IDL `aia_get_response` across all calibration versions (V1 to V10) are available in [COMPARISON.md](COMPARISON.md).
+
 ## Verification & Testing
 
 Run the automated test suite with `pytest`:
@@ -96,5 +100,6 @@ python examples/compare_with_ssw.py
 ```
 
 ## License
+
 
 Distributed under the terms of the [MIT License](LICENSE).
