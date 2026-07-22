@@ -140,12 +140,26 @@ class AIAResponseGenerator:
                     obs_t_str = obs_t_str[:-1]
                 obstime_obj = Time(obs_t_str)
 
-            response = c.wavelength_response(
-                obstime=obstime_obj,
-                include_eve_correction=self.request.include_eve_correction,
-                include_crosstalk=self.request.include_crosstalk,
-                correction_table=correction_table,
-            )
+            try:
+                response = c.wavelength_response(
+                    obstime=obstime_obj,
+                    include_eve_correction=self.request.include_eve_correction,
+                    include_crosstalk=self.request.include_crosstalk,
+                    correction_table=correction_table,
+                )
+            except Exception:
+                try:
+                    from astropy.utils.data import clear_download_cache
+                    clear_download_cache()
+                except Exception:
+                    pass
+                response = c.wavelength_response(
+                    obstime=obstime_obj,
+                    include_eve_correction=self.request.include_eve_correction,
+                    include_crosstalk=self.request.include_crosstalk,
+                    correction_table=correction_table,
+                )
+
 
 
             native_wavelength = c.wavelength.to_value(u.angstrom)
