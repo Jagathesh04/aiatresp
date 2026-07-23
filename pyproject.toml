@@ -63,8 +63,9 @@ dependencies = [
 Homepage = "https://github.com/Jagathesh04/aiatresp"
 Repository = "https://github.com/Jagathesh04/aiatresp"
 Documentation = "https://github.com/Jagathesh04/aiatresp#readme"
-Changelog = "https://github.com/Jagathesh04/aiatresp/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/Jagathesh04/aiatresp/blob/master/CHANGELOG.md"
 Issues = "https://github.com/Jagathesh04/aiatresp/issues"
+
 
 [project.scripts]
 aia-response = "aiatresp.cli:main"
