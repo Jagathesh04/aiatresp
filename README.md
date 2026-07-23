@@ -103,14 +103,6 @@ python examples/compare_with_ssw.py
 
 ## Authors & Contributors
 
-<a href="https://github.com/Jagathesh04">
-  <img src="https://github.com/Jagathesh04.png" width="60" height="60" style="border-radius: 50%;" alt="Jagatheshwaran R" title="Jagatheshwaran R (Author)"/>
-</a>
-&nbsp;&nbsp;
-<a href="https://github.com/aparna-g-r">
-  <img src="https://github.com/aparna-g-r.png" width="60" height="60" style="border-radius: 50%;" alt="Aparna G R" title="Aparna G R (Co-Author)"/>
-</a>
-
 Made by [Jagatheshwaran R](https://github.com/Jagathesh04) and [Aparna G R](https://github.com/aparna-g-r).
 
 [![Contributors](https://contrib.rocks/image?repo=Jagathesh04/aiatresp)](https://github.com/Jagathesh04/aiatresp/graphs/contributors)
