@@ -13,8 +13,10 @@ license-files = ["LICENSE"]
 requires-python = ">=3.10"
 
 authors = [
-    { name = "Jagatheshwaran R" }
+    { name = "Jagatheshwaran R" },
+    { name = "Aparna G R" }
 ]
+
 
 keywords = [
     "solar physics",

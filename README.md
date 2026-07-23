@@ -34,20 +34,22 @@ tr = response.response  # Array shape: (6, 101) -> (channels, temperature)
 
 ## Installation
 
-Clone the repository and enter the project directory:
+### Via PyPI (Recommended)
+```bash
+pip install aiatresp
+```
+
+### Via Conda-Forge
+```bash
+conda install -c conda-forge aiatresp
+```
+
+### From Source
 ```bash
 git clone https://github.com/Jagathesh04/aiatresp.git && cd aiatresp
-```
-
-Install `aiatresp` directly into your active environment (Conda or `.venv`):
-```bash
-pip install .
-```
-
-For editable/development installation:
-```bash
 pip install -e .
 ```
+
 
 ## Usage
 
@@ -99,7 +101,12 @@ Run the scientific verification script against SolarSoft reference standards:
 python examples/compare_with_ssw.py
 ```
 
+## Authors & Credits
+
+- **Jagatheshwaran R**
+- **Aparna G R**
+
 ## License
 
-
 Distributed under the terms of the [MIT License](LICENSE).
+
