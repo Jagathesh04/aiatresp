@@ -1,0 +1,13 @@
+
+setenv,'SSW=C:\ssw'
+setenv,'SSWDB=C:\sswdb'
+@C:\ssw\gen\idl\ssw_system\idl_startup_windows.pro
+ssw_path,/aia,/chianti,/quiet
+t = aia_get_response(version=9, timedepend_date='2020-07-06T21:54:52', /temperature, /dn, /eve, /silent)
+ids = [0,1,2,3,4,6]
+channels = t.channels[ids]
+logt = t.logte
+tr = t.all[*,ids]
+units = t.units
+save, file='C:\ssw\aia_python\aiatresp\docs\version_plots\idl_v9.dat', channels, logt, tr, units
+exit

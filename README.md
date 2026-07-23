@@ -87,7 +87,9 @@ aia-response --clear-cache
 
 ## Scientific Validation
 
-Full side-by-side comparison plots and numerical validation against SolarSoft IDL `aia_get_response` across all calibration versions (V1 to V10) are available in [COMPARISON.md](COMPARISON.md).
+Full side-by-side comparison plots, error matrices, and numerical validation against SolarSoft IDL `aia_get_response` across all 13 official calibration releases (preflight, V2 to V10c) are available in [COMPARISON.md](COMPARISON.md).
+
+
 
 ## Verification & Testing
 

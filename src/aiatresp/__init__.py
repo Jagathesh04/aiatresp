@@ -43,10 +43,14 @@ def aia_response(
     return AIAResponseGenerator(req).generate()
 
 
+__version__ = "0.1.1"
+
 __all__ = [
+    "__version__",
     "aia_response",
     "clear_cache",
     "ResponseRequest",
     "AIAResponse",
     "AIAResponseGenerator",
 ]
+

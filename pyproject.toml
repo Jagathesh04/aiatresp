@@ -4,8 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aiatresp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Reproducible, Python-native SDO/AIA temperature-response generation"
+
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]
