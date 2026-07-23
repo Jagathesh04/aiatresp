@@ -41,13 +41,16 @@ def download_file(url: str, dest_path: Path, max_parts: int = 16) -> None:
 
     last_error = None
     for target_url in urls_to_try:
-        try:
-            return _download_from_url(target_url, dest_path, max_parts)
-        except Exception as e:
-            last_error = e
-            print(f"Warning: Download from {target_url} failed ({e}). Trying fallback mirror...")
+        for attempt in range(3):
+            try:
+                return _download_from_url(target_url, dest_path, max_parts)
+            except Exception as e:
+                last_error = e
+                print(f"Warning: Download from {target_url} failed (attempt {attempt + 1}/3: {e}). Retrying...")
+                time.sleep(1 + attempt)
     
     raise RuntimeError(f"Failed to download {dest_path.name} from all mirrors: {last_error}")
+
 
 
 def _download_from_url(url: str, dest_path: Path, max_parts: int = 16) -> None:

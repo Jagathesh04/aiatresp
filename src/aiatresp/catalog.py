@@ -22,11 +22,16 @@ DEFAULT_BUILTIN_CATALOG: List[Dict[str, str]] = [
     {"version": "3", "timestamp": "2012-09-26T20:12:21+00:00"},
     {"version": "4", "timestamp": "2013-01-09T20:48:35+00:00"},
     {"version": "6", "timestamp": "2014-05-09T02:58:12+00:00"},
+    {"version": "6", "timestamp": "2014-10-27T23:00:30+00:00"},
     {"version": "7", "timestamp": "2017-11-29T19:56:26+00:00"},
     {"version": "8", "timestamp": "2017-11-30T05:11:27+00:00"},
+    {"version": "8", "timestamp": "2017-12-10T05:06:27+00:00"},
     {"version": "9", "timestamp": "2020-07-06T21:54:52+00:00"},
+    {"version": "10", "timestamp": "2020-10-28T18:00:00+00:00"},
+    {"version": "10", "timestamp": "2020-10-28T19:00:00+00:00"},
     {"version": "10", "timestamp": "2020-11-19T19:00:00+00:00"},
 ]
+
 
 
 
@@ -95,7 +100,15 @@ def get_ssw_catalog(refresh: bool = False) -> List[Dict[str, str]]:
                         return data
             except Exception:
                 pass
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            with cache_path.open("w", encoding="utf-8") as f:
+                json.dump(DEFAULT_BUILTIN_CATALOG, f, indent=2)
+        except Exception:
+            pass
         return DEFAULT_BUILTIN_CATALOG
+
+
 
 
 def resolve_calibration_version_from_date(obstime: str | datetime) -> int | str:

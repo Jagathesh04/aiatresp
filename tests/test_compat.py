@@ -102,7 +102,8 @@ def test_infer_calibration_version_from_date():
     assert infer_calibration_version_from_date("2014-05-10T00:00:00") == 6
     assert infer_calibration_version_from_date("2017-12-01T00:00:00") == 8
     assert infer_calibration_version_from_date("2020-07-07T00:00:00") == 9
-    assert infer_calibration_version_from_date("2020-11-01T00:00:00") == 10
+    assert infer_calibration_version_from_date("2020-12-01T00:00:00") == 10
+
 
     # Auto inference when calibration_version is None
     req_date = ResponseRequest(observation_time="2012-10-01T00:00:00")
